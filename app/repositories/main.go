@@ -8,11 +8,8 @@ type Repositories struct {
 }
 
 func InitRepositories (db *gorm.DB) *Repositories {
-	userRepo := NewUserRepo(db)
-	oauthClientRepo := NewOauthClientRepo(db)
-
 	return &Repositories{
-		User:userRepo,
-		OauthClient:oauthClientRepo,
+		User:NewUserRepo(db),
+		OauthClient:NewOauthClientRepo(db),
 	}
 }

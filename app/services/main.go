@@ -7,9 +7,7 @@ type Managers struct {
 }
 
 func InitManagers (db *gorm.DB) *Managers {
-	oauthClientManager := NewOauthClientManager(db)
-
 	return &Managers{
-		OauthClient: oauthClientManager,
+		OauthClient: NewOauthClientManager(db),
 	}
 }

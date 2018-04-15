@@ -7,20 +7,14 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/rubenv/sql-migrate"
 	"github.com/MetalRex101/auth-server/app/controllers"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/jinzhu/gorm"
-	"log"
 	"github.com/MetalRex101/auth-server/app/services"
 	"github.com/MetalRex101/auth-server/app/repositories"
+	"github.com/MetalRex101/auth-server/app/db"
 )
 
 type App struct {
 	Echo *echo.Echo
-}
-
-type Controllers struct{
-	Oauth *controllers.OauthController
 }
 
 func (app *App) Initialize() {
@@ -28,39 +22,16 @@ func (app *App) Initialize() {
 
 	app.Echo.Use(middleware.Logger())
 	app.Echo.Use(middleware.Recover())
-	app.Echo.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 
-	db := app.initDB()
+	db := db.Init()
 	app.migrateDB(db)
 
 	managers := services.InitManagers(db)
 	repos := repositories.InitRepositories(db)
 
-	controllers := app.initControllers(managers, repos)
+	controllers := controllers.InitControllers(repos, managers)
 
 	app.registerRoutes(controllers)
-}
-
-func (app *App) initDB() *gorm.DB {
-	conf := config.Instance
-	uri := conf.DB.DSN
-
-	conn, err := gorm.Open(conf.DB.Server, uri)
-
-	if err != nil {
-		log.Panicf("Could not connect to database: %s", err)
-	}
-
-	return conn
-}
-
-func (app *App) initControllers (managers *services.Managers, repos *repositories.Repositories) *Controllers {
-	base := controllers.NewBaseController(repos, managers)
-	oauth := controllers.NewOauthController(base)
-
-	return &Controllers{
-		Oauth:oauth,
-	}
 }
 
 func (app *App) Run(port int) {
@@ -83,7 +54,7 @@ func (app *App) migrateDB(db *gorm.DB) {
 	}
 }
 
-func (app *App) registerRoutes(controllers *Controllers) {
+func (app *App) registerRoutes(controllers *controllers.Controllers) {
 	app.Echo.GET("authorize", func (c echo.Context) error {
 		return controllers.Oauth.AuthorizeClient(c)
 	})
