@@ -1,0 +1,4 @@
+.idea/
+vendor/
+config.yml
+go_build_main_go
