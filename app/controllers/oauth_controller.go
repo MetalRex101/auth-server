@@ -2,25 +2,27 @@ package controllers
 
 import (
 	"github.com/labstack/echo"
-	"github.com/MetalRex101/auth-server/app/services"
 	"github.com/MetalRex101/auth-server/app/validators"
 	"net/http"
-	"github.com/MetalRex101/auth-server/app/repositories"
 )
 
 type Response struct{}
 
-type oauthController struct{}
+type OauthController struct{
+	Base *BaseController
+}
 
-func (controller *oauthController) AuthorizeClient(c echo.Context) error {
-	oauthClientManager := services.OauthClientManager{}
+func NewOauthController (base *BaseController) *OauthController {
+	return &OauthController{base}
+}
 
+func (oc *OauthController) AuthorizeClient(c echo.Context) error {
 	clientID, err := validators.Request.GetClientId(true, c)
 	if err != nil {
 		return err
 	}
 
-	client, err := repositories.OauthClient.GetForOauth(clientID)
+	client, err := oc.Base.Repos.OauthClient.GetForOauth(clientID)
 	if err != nil {
 		return err
 	}
@@ -47,20 +49,12 @@ func (controller *oauthController) AuthorizeClient(c echo.Context) error {
 		return err
 	}
 
-	user, err := repositories.User.GetByEmailAndPassword(email, password, true)
+	user, err := oc.Base.Repos.User.GetByEmailAndPassword(email, password, true)
 	if err != nil {
 		return err
 	}
 
-	if err := services.Auth.LogoutCurrentUser(c); err != nil {
-		return err
-	}
-
-	if err := services.Auth.AuthenticateUser(user, c); err != nil {
-		return err
-	}
-
-	oauthSession, err := oauthClientManager.StartSession(client, c)
+	oauthSession, err := oc.Base.Managers.OauthClient.StartSession(client, user, c)
 	if err != nil {
 		return err
 	}

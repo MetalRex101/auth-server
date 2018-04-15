@@ -1,9 +1,18 @@
 package repositories
 
-var OauthClient *oauthClientRepo
-var User *userRepo
+import "github.com/jinzhu/gorm"
 
-func init() {
-	OauthClient = &oauthClientRepo{}
-	User = &userRepo{}
+type Repositories struct {
+	User *UserRepo
+	OauthClient *OauthClientRepo
+}
+
+func InitRepositories (db *gorm.DB) *Repositories {
+	userRepo := NewUserRepo(db)
+	oauthClientRepo := NewOauthClientRepo(db)
+
+	return &Repositories{
+		User:userRepo,
+		OauthClient:oauthClientRepo,
+	}
 }

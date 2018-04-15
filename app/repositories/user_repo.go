@@ -7,13 +7,18 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"crypto/md5"
-	"github.com/MetalRex101/auth-server/app/db"
 	"encoding/hex"
 )
 
-type userRepo struct{}
+type UserRepo struct{
+	DB *gorm.DB
+}
 
-func (userRepo userRepo) GetByEmailAndPassword(email string, pass string, hash bool) (*models.User, error) {
+func NewUserRepo(db *gorm.DB) *UserRepo {
+	return &UserRepo{db}
+}
+
+func (ur *UserRepo) GetByEmailAndPassword(email string, pass string, hash bool) (*models.User, error) {
 	var user models.User
 	var userEmail models.Email
 
@@ -23,7 +28,7 @@ func (userRepo userRepo) GetByEmailAndPassword(email string, pass string, hash b
 		pass = hex.EncodeToString(hash.Sum(nil))
 	}
 
-	err := db.Gorm.Preload("Emails", "email = ?", email).
+	err := ur.DB.Preload("Emails", "email = ?", email).
 		Scopes(user.WhereHasPassword(pass), user.WhereHasEmail(email)).First(&user).Error
 
 	if err != nil {

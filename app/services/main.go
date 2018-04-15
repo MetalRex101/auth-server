@@ -1,9 +1,15 @@
 package services
 
-var Session *SessionService
-var Auth *AuthService
+import "github.com/jinzhu/gorm"
 
-func init() {
-	Session = &SessionService{}
-	Auth = &AuthService{}
+type Managers struct {
+	OauthClient *OauthClientManager
+}
+
+func InitManagers (db *gorm.DB) *Managers {
+	oauthClientManager := NewOauthClientManager(db)
+
+	return &Managers{
+		OauthClient: oauthClientManager,
+	}
 }
