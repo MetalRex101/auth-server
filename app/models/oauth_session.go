@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type OauthSession struct {
 	ID uint `gorm:"AUTO_INCREMENT"json:"-"`

@@ -22,3 +22,5 @@ import:
   subpackages:
   - session
 - package: github.com/elgs/gostrgen
+- package: github.com/uniplaces/carbon
+  version: ~0.1.0

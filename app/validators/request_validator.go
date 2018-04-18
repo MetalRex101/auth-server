@@ -4,13 +4,17 @@ import (
 	"github.com/labstack/echo"
 	"strconv"
 	"net/http"
+	"fmt"
 )
+
+const CodeTypeActivation = "activation"
+const CodeTypeAccess = "access"
 
 type RequestValidator struct {
 	Base *Validator
 }
 
-func (v RequestValidator) OauthTID (accessToken string, clientId string) error {
+func (v RequestValidator) OauthTID(accessToken string, clientId string) error {
 	if (accessToken == "" && clientId == "") || clientId == "" {
 		return NewValidationError("Не указан client_id, client_secret или access_token")
 	}
@@ -38,7 +42,17 @@ func (v RequestValidator) GetClientId(validate bool, c echo.Context) (int, error
 	return i, nil
 }
 
-func (v RequestValidator) GetRedirectUri (validate bool, c echo.Context) (string, error) {
+func (v RequestValidator) GetClientSecret(validate bool, c echo.Context) (string, error) {
+	clientSecret := c.QueryParam("client_secret")
+
+	if validate && clientSecret == "" {
+		return "", echo.NewHTTPError(http.StatusBadRequest, "Не указан client secret")
+	}
+
+	return clientSecret, nil
+}
+
+func (v RequestValidator) GetRedirectUri(validate bool, c echo.Context) (string, error) {
 	redirectUri := c.QueryParam("redirect_uri")
 
 	if redirectUri == "" && validate {
@@ -48,13 +62,15 @@ func (v RequestValidator) GetRedirectUri (validate bool, c echo.Context) (string
 	return redirectUri, nil
 }
 
-func (v RequestValidator) GetPassword (validate bool, c echo.Context, fromBody bool) (string, error) {
+func (v RequestValidator) GetPassword(validate bool, c echo.Context, fromBody bool) (string, error) {
 	var password string
 
 	if fromBody {
 		m := echo.Map{}
 
-		if err := c.Bind(&m); err != nil { return "", err }
+		if err := c.Bind(&m); err != nil {
+			return "", err
+		}
 
 		password = m["password"].(string)
 	} else {
@@ -68,13 +84,15 @@ func (v RequestValidator) GetPassword (validate bool, c echo.Context, fromBody b
 	return password, nil
 }
 
-func (v RequestValidator) GetEmail (validate bool, c echo.Context, fromBody bool) (string, error) {
+func (v RequestValidator) GetEmail(validate bool, c echo.Context, fromBody bool) (string, error) {
 	var email string
 
 	if fromBody {
 		m := echo.Map{}
 
-		if err := c.Bind(&m); err != nil { return "", err }
+		if err := c.Bind(&m); err != nil {
+			return "", err
+		}
 
 		email = m["email"].(string)
 	} else {
@@ -86,4 +104,20 @@ func (v RequestValidator) GetEmail (validate bool, c echo.Context, fromBody bool
 	}
 
 	return email, nil
+}
+
+func (v RequestValidator) GetCode(codeType string, c echo.Context) (string, error) {
+	code := c.QueryParam("code")
+
+	if code == "" {
+		m := echo.Map{}
+
+		if err := c.Bind(&m); err != nil {
+			return "", echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Не указан %s код", codeType))
+		}
+
+		code = m["code"].(string)
+	}
+
+	return code, nil
 }

@@ -15,23 +15,36 @@ import (
 
 type App struct {
 	Echo *echo.Echo
+	DB *gorm.DB
+	Config *config.Config
+	Managers *services.Managers
+	Repos *repositories.Repositories
+	Controllers *controllers.Controllers
+}
+
+func NewApp(config *config.Config) *App {
+	return &App{Config:config}
 }
 
 func (app *App) Initialize() {
 	app.Echo = echo.New()
 
+	app.InitializeServices()
+
 	app.Echo.Use(middleware.Logger())
 	app.Echo.Use(middleware.Recover())
 
-	db := db.Init()
-	app.migrateDB(db)
+	app.registerRoutes()
+}
 
-	managers := services.InitManagers(db)
-	repos := repositories.InitRepositories(db)
+func (app *App) InitializeServices () {
+	app.DB = db.Init(app.Config)
+	app.migrateDB(app.DB)
 
-	controllers := controllers.InitControllers(repos, managers)
+	app.Managers = services.InitManagers(app.DB)
+	app.Repos = repositories.InitRepositories(app.DB)
 
-	app.registerRoutes(controllers)
+	app.Controllers = controllers.InitControllers(app.Repos, app.Managers)
 }
 
 func (app *App) Run(port int) {
@@ -39,12 +52,14 @@ func (app *App) Run(port int) {
 }
 
 func (app *App) migrateDB(db *gorm.DB) {
-	if config.Instance.App.Env != "development" {
+	env := app.Config.App.Env
+
+	if env != "development" && env != "testing" {
 		migrations := &migrate.FileMigrationSource{
-			Dir: config.Instance.DB.MigrationDir,
+			Dir: app.Config.App.MigrationDir,
 		}
 
-		n, err := migrate.Exec(db.DB(), config.Instance.DB.Server, migrations, migrate.Up)
+		n, err := migrate.Exec(db.DB(), app.Config.DB.Server, migrations, migrate.Up)
 
 		if err != nil {
 			app.Echo.Logger.Fatalf(fmt.Sprintf("Migration failed: %s", err))
@@ -54,8 +69,7 @@ func (app *App) migrateDB(db *gorm.DB) {
 	}
 }
 
-func (app *App) registerRoutes(controllers *controllers.Controllers) {
-	app.Echo.GET("authorize", func (c echo.Context) error {
-		return controllers.Oauth.AuthorizeClient(c)
-	})
+func (app *App) registerRoutes() {
+	app.Echo.GET("authorize", app.Controllers.Oauth.AuthorizeClient)
+	app.Echo.GET("access_token", app.Controllers.Oauth.GetAccessToken)
 }

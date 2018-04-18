@@ -6,11 +6,10 @@ import (
 	"log"
 )
 
-func Init() *gorm.DB {
-	conf := config.Instance
-	uri := conf.DB.DSN
+func Init(config *config.Config) *gorm.DB {
+	uri := config.DB.DSN
 
-	conn, err := gorm.Open(conf.DB.Server, uri)
+	conn, err := gorm.Open(config.DB.Server, uri)
 
 	if err != nil {
 		log.Panicf("Could not connect to database: %s", err)

@@ -30,7 +30,7 @@ func (cm *OauthClientManager) StartSession(client *models.Client, user *models.U
 	oauthSession.AccessGrantedAt = &accessGranted
 	oauthSession.AccessExpiresAt = &accessExpires
 
-	code, err := gostrgen.RandGen(128, gostrgen.Lower | gostrgen.Upper | gostrgen.Digit, "", "")
+	code, err := gostrgen.RandGen(128, gostrgen.LowerUpperDigit, "", "")
 
 	if err != nil {
 		return nil, err

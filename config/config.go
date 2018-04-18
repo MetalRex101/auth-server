@@ -4,12 +4,9 @@ import (
 	"github.com/spf13/viper"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"path/filepath"
 	"os"
-	"github.com/davecgh/go-spew/spew"
+	"path"
 )
-
-var Instance *Config
 
 type Config struct {
 	DB *DBConfig
@@ -20,78 +17,47 @@ type DBConfig struct {
 	Server       string
 	DSN  	     string
 	Charset      string
-	MigrationDir string
 }
 
 type AppConfig struct {
 	Env string
+	MigrationDir string
 }
 
-func GetConfig() *Config {
-	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+const configPath = ".config/github.com/MetalRex101/auth-server"
+const projectPath = "src/github.com/MetalRex101/auth-server"
+const configName = "config"
 
-	spew.Dump(dir)
+func GetConfig(appEnv string) *Config {
+	configDir := path.Join(os.Getenv("HOME"), configPath)
+	projectDir := path.Join(os.Getenv("GOPATH"), projectPath)
 
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
+	os.MkdirAll(configDir, os.ModePerm)
+	viper.SetConfigName(configName)
+	viper.AddConfigPath(configDir)
+	viper.AddConfigPath(projectDir)
+
 	err := viper.ReadInConfig()
-
 	if err != nil {
 		fmt.Println("No configuration file loaded - using defaults")
-
-		// If no config is found, use the default(s)
 		setDefaults()
 	}
 
 	return &Config{
 		DB: &DBConfig{
 			Server:       "mysql",
-			DSN: 	      viper.GetString(fmt.Sprintf("%s.datasource", viper.GetString("app.env"))),
+			DSN: 	      viper.GetString(fmt.Sprintf("%s.datasource", appEnv)),
 			Charset:      "utf8",
-			MigrationDir: viper.GetString(fmt.Sprintf("%s.dir", viper.GetString("app.env"))),
 		},
 		App: &AppConfig{
-			Env: viper.GetString("app.env"),
+			Env: appEnv,
+			MigrationDir: viper.GetString(fmt.Sprintf("%s.dir", appEnv)),
 		},
 	}
 }
 
-func init() {
-	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-
-	if os.Getenv("app_env") == "testing" {
-		viper.AddConfigPath("../")
-	} else {
-		viper.AddConfigPath(dir)
-	}
-
-	viper.SetConfigName("config")
-
-	err := viper.ReadInConfig()
-
-	if err != nil {
-		fmt.Println("No configuration file loaded - using defaults")
-
-		// If no config is found, use the default(s)
-		setDefaults()
-	}
-
-	Instance = &Config{
-		DB: &DBConfig{
-			Server:       "mysql",
-			DSN: 	      viper.GetString(fmt.Sprintf("%s.datasource", viper.GetString("app.env"))),
-			Charset:      "utf8",
-			MigrationDir: viper.GetString(fmt.Sprintf("%s.dir", viper.GetString("app.env"))),
-		},
-		App: &AppConfig{
-			Env: viper.GetString("app.env"),
-		},
-	}
-}
-
+// If no config is found, set the default(s)
 func setDefaults() {
-	viper.SetDefault("app_env", "local")
-
 	// Mysql defaults
 	viper.SetDefault("db_host", "127.0.0.1")
 	viper.SetDefault("db_database", "api-server")
