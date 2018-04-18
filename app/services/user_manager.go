@@ -1,24 +1,24 @@
-package repositories
+package services
 
 import (
-	"github.com/jinzhu/gorm"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/MetalRex101/auth-server/app/models"
-	"github.com/labstack/echo"
-	"net/http"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo"
+	"net/http"
 )
 
-type UserRepo struct{
+type UserManager struct {
 	DB *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) *UserRepo {
-	return &UserRepo{db}
+func NewUserManager (db *gorm.DB) IUserManager {
+	return &UserManager{db}
 }
 
-func (ur *UserRepo) GetByEmailAndPassword(email string, pass string, hash bool) (*models.User, error) {
+func (um *UserManager) GetByEmailAndPassword(email string, pass string, hash bool) (*models.User, error) {
 	var user models.User
 	var userEmail models.Email
 
@@ -28,7 +28,7 @@ func (ur *UserRepo) GetByEmailAndPassword(email string, pass string, hash bool) 
 		pass = hex.EncodeToString(hash.Sum(nil))
 	}
 
-	err := ur.DB.Preload("Emails", "email = ?", email).
+	err := um.DB.Preload("Emails", "email = ?", email).
 		Scopes(user.WhereHasPassword(pass), user.WhereHasEmail(email)).First(&user).Error
 
 	if err != nil {

@@ -6,13 +6,14 @@ import (
 	"time"
 	"github.com/elgs/gostrgen"
 	"github.com/jinzhu/gorm"
+	"net/http"
 )
 
 type OauthClientManager struct {
 	DB *gorm.DB
 }
 
-func NewOauthClientManager (db *gorm.DB) *OauthClientManager {
+func NewOauthClientManager (db *gorm.DB) IOauthClientManager {
 	return &OauthClientManager{db}
 }
 
@@ -47,4 +48,35 @@ func (cm *OauthClientManager) StartSession(client *models.Client, user *models.U
 	cm.DB.Save(oauthSession)
 
 	return oauthSession, nil
+}
+
+func (cm *OauthClientManager) GetForOauth(clientID int) (*models.Client, error) {
+	var client models.Client
+
+	err := cm.DB.Where("client_id = ? and status = ?", clientID, true).First(&client).Error
+
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusNotFound, "Клиент не найден")
+	}
+
+	return &client, nil
+}
+
+func (cm *OauthClientManager) GetForApi(clientID int, clientSecret string, ip string) (*models.Client, error) {
+	var client models.Client
+
+	err := cm.DB.Where(
+		"client_id = ? and client_secret = ? and status = ?",
+		clientID,
+		clientSecret,
+		true,
+	).
+		Where("ip = '*' OR ip = ?", ip).
+		First(&client).Error
+
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusNotFound, "Клиент не найден")
+	}
+
+	return &client, nil
 }

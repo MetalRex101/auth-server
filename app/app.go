@@ -6,11 +6,10 @@ import (
 	"github.com/MetalRex101/auth-server/config"
 	"github.com/labstack/echo/middleware"
 	"github.com/rubenv/sql-migrate"
-	"github.com/MetalRex101/auth-server/app/controllers"
 	"github.com/jinzhu/gorm"
 	"github.com/MetalRex101/auth-server/app/services"
-	"github.com/MetalRex101/auth-server/app/repositories"
 	"github.com/MetalRex101/auth-server/app/db"
+	"github.com/MetalRex101/auth-server/app/handlers"
 )
 
 type App struct {
@@ -18,8 +17,7 @@ type App struct {
 	DB *gorm.DB
 	Config *config.Config
 	Managers *services.Managers
-	Repos *repositories.Repositories
-	Controllers *controllers.Controllers
+	Handlers *handlers.Handlers
 }
 
 func NewApp(config *config.Config) *App {
@@ -42,9 +40,10 @@ func (app *App) InitializeServices () {
 	app.migrateDB(app.DB)
 
 	app.Managers = services.InitManagers(app.DB)
-	app.Repos = repositories.InitRepositories(app.DB)
 
-	app.Controllers = controllers.InitControllers(app.Repos, app.Managers)
+	app.Handlers = handlers.InitHandlers(
+		app.Managers,
+	)
 }
 
 func (app *App) Run(port int) {
@@ -70,6 +69,6 @@ func (app *App) migrateDB(db *gorm.DB) {
 }
 
 func (app *App) registerRoutes() {
-	app.Echo.GET("authorize", app.Controllers.Oauth.AuthorizeClient)
-	app.Echo.GET("access_token", app.Controllers.Oauth.GetAccessToken)
+	app.Echo.GET("authorize", app.Handlers.Oauth.AuthorizeClientHandler.Handle)
+	app.Echo.GET("access_token", app.Handlers.Oauth.AccessTokenHandler.Handle)
 }
