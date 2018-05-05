@@ -4,6 +4,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/MetalRex101/auth-server/app/models"
 	"github.com/labstack/echo"
+	"crypto/md5"
+	"encoding/hex"
 )
 
 type Managers struct {
@@ -20,7 +22,7 @@ type IOauthClientManager interface {
 
 type IOauthSessionManager interface {
 	StartSession (oauthSession *models.OauthSession, timeout bool, timeOffset int, c echo.Context) error
-	FindByClientIDAndCode (clientID int, code string) (*models.OauthSession, error)
+	FindByClientAndCode(client *models.Client, code string) (*models.OauthSession, error)
 }
 
 type IUserManager interface {
@@ -33,4 +35,11 @@ func InitManagers (db *gorm.DB) *Managers {
 		OauthSession: NewOauthSessionManager(db),
 		User: NewUserManager(db),
 	}
+}
+
+func HashPassword (pass string) string {
+	hash := md5.New()
+	hash.Write([]byte(pass))
+
+	return hex.EncodeToString(hash.Sum(nil))
 }

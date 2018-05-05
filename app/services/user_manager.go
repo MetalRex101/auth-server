@@ -2,8 +2,6 @@ package services
 
 import (
 	"github.com/MetalRex101/auth-server/app/models"
-	"crypto/md5"
-	"encoding/hex"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
@@ -23,9 +21,7 @@ func (um *UserManager) GetByEmailAndPassword(email string, pass string, hash boo
 	var userEmail models.Email
 
 	if hash {
-		hash := md5.New()
-		hash.Write([]byte(pass))
-		pass = hex.EncodeToString(hash.Sum(nil))
+		pass = HashPassword(pass)
 	}
 
 	err := um.DB.Preload("Emails", "email = ?", email).

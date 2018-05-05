@@ -27,10 +27,12 @@ type AppConfig struct {
 const configPath = ".config/github.com/MetalRex101/auth-server"
 const projectPath = "src/github.com/MetalRex101/auth-server"
 const configName = "config"
+const migrationDir = "migrations"
 
 func GetConfig(appEnv string) *Config {
 	configDir := path.Join(os.Getenv("HOME"), configPath)
 	projectDir := path.Join(os.Getenv("GOPATH"), projectPath)
+	migrationDir := path.Join(projectDir, migrationDir)
 
 	os.MkdirAll(configDir, os.ModePerm)
 	viper.SetConfigName(configName)
@@ -51,7 +53,7 @@ func GetConfig(appEnv string) *Config {
 		},
 		App: &AppConfig{
 			Env: appEnv,
-			MigrationDir: viper.GetString(fmt.Sprintf("%s.dir", appEnv)),
+			MigrationDir: migrationDir,
 		},
 	}
 }

@@ -14,6 +14,8 @@ type OauthSessionManager struct {
 	DB *gorm.DB
 }
 
+const timeoutSeconds = 4000
+
 func NewOauthSessionManager (db *gorm.DB) IOauthSessionManager {
 	return &OauthSessionManager{db}
 }
@@ -27,7 +29,7 @@ func (osm *OauthSessionManager) StartSession (oauthSession *models.OauthSession,
 	}
 
 	if !timeout {
-		t = time.Now().Add(time.Second * 4000)
+		t = time.Now().Add(time.Second * timeoutSeconds)
 
 		oauthSession.AccessExpiresAt = &t
 	}
@@ -41,10 +43,10 @@ func (osm *OauthSessionManager) StartSession (oauthSession *models.OauthSession,
 	return err
 }
 
-func (osm *OauthSessionManager) FindByClientIDAndCode (clientID int, code string) (*models.OauthSession, error) {
+func (osm *OauthSessionManager) FindByClientAndCode (client *models.Client, code string) (*models.OauthSession, error) {
 	var oauthSession models.OauthSession
 
-	err := osm.DB.Where("client_id = ?", clientID).
+	err := osm.DB.Where("client_id = ?", client.ID).
 		Where("code = ?", code).
 		Where("access_expires_at > ?", carbon.Now().Time).
 		Where("access_token IS NULL").

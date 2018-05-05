@@ -15,16 +15,16 @@ create table oauth_clients
 );
 
 create index oauth_client_client_id_index
-	on oauth_client (client_id)
+	on oauth_clients (client_id)
 ;
 
 create index oauth_client_client_secret_index
-	on oauth_client (client_secret)
+	on oauth_clients (client_secret)
 ;
 
 create index oauth_client_status_index
-	on oauth_client (status)
+	on oauth_clients (status)
 ;
 
 -- +migrate Down
-drop table oauth_client;
+drop table oauth_clients;

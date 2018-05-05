@@ -1,8 +1,10 @@
 app:
   env: development
+  table: migrations
 
 development:
   dialect: mysql
   datasource: user:password@tcp(host:port)/dbname?parseTime=true
-  dir: migrations
-  table: migrations
+testing:
+  dialect: mysql
+  datasource: user:password@tcp(host:port)/dbname?parseTime=true

@@ -8,8 +8,6 @@ import:
   version: ^1.0.0
 - package: github.com/go-sql-driver/mysql
   version: ~1.3.0
-- package: gopkg.in/gormigrate.v1
-  version: ~1.2.0
 - package: github.com/rubenv/sql-migrate
 - package: github.com/viant/toolbox
   version: ~0.1.0
@@ -24,3 +22,6 @@ import:
 - package: github.com/elgs/gostrgen
 - package: github.com/uniplaces/carbon
   version: ~0.1.0
+- package: github.com/bluele/factory-go
+  subpackages:
+  - factory

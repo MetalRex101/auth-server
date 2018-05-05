@@ -45,7 +45,7 @@ func (ac *AccessTokenHandler) Handle (c echo.Context) error {
 		return err
 	}
 
-	oauthSession, err := ac.oauthSessionManager.FindByClientIDAndCode(clientID, code)
+	oauthSession, err := ac.oauthSessionManager.FindByClientAndCode(client, code)
 	if err != nil {
 		return err
 	}

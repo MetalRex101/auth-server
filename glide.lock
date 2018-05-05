@@ -1,6 +1,10 @@
-hash: 6d8641053fc4ab1d4b0d0a727bb3161dabda2c6cae4050a932e4fea8692081eb
-updated: 2018-04-16T11:36:01.879206427+03:00
+hash: a286215207ac84e55c5f5928c171bc3436ff4912c6804f4c95bd393a7e42232c
+updated: 2018-05-05T16:20:31.866922019+03:00
 imports:
+- name: github.com/bluele/factory-go
+  version: 14d56da9cb7cb33b02fe42a9566a03e51c8b3bef
+  subpackages:
+  - factory
 - name: github.com/davecgh/go-spew
   version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
   subpackages:
@@ -76,6 +80,8 @@ imports:
   version: b5e8006cbee93ec955a89ab31e0e3ce3204f3736
 - name: github.com/uniplaces/carbon
   version: 2ed00d8a452957d017135066f4e9bda33821d426
+  subpackages:
+  - lang
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
@@ -96,8 +102,6 @@ imports:
   subpackages:
   - transform
   - unicode/norm
-- name: gopkg.in/gormigrate.v1
-  version: 21b0b93e8253d575d9185974835423f98d30158d
 - name: gopkg.in/gorp.v1
   version: c87af80f3cc5036b55b83d77171e156791085e2e
 - name: gopkg.in/yaml.v2
