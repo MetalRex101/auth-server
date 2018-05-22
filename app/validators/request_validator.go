@@ -14,10 +14,15 @@ type RequestValidator struct {
 	Base *Validator
 }
 
-func (v RequestValidator) OauthTID(accessToken string, clientId string) error {
-	if (accessToken == "" && clientId == "") || clientId == "" {
+func (v RequestValidator) OauthTID(c echo.Context) error {
+	accessToken  := c.QueryParam("access_token")
+	clientId     := c.QueryParam("client_id")
+	clientSecret := c.QueryParam("client_secret")
+
+	if (accessToken == "" && clientId == "") || clientSecret == "" {
 		return NewValidationError("Не указан client_id, client_secret или access_token")
 	}
+
 	return nil
 }
 
@@ -40,6 +45,17 @@ func (v RequestValidator) GetClientId(validate bool, c echo.Context) (int, error
 	}
 
 	return i, nil
+}
+
+// Проверяет, был ли передан access_token
+func (v RequestValidator) GetAccessToken(validate bool, c echo.Context) (string, error) {
+	accessToken := c.QueryParam("access_token")
+
+	if accessToken == "" && validate {
+		return "", echo.NewHTTPError(http.StatusBadRequest, "Не указан access_token или Authorization")
+	}
+
+	return accessToken, nil
 }
 
 func (v RequestValidator) GetClientSecret(validate bool, c echo.Context) (string, error) {

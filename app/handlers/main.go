@@ -15,7 +15,7 @@ type Oauth struct {
 }
 
 type Api struct {
-
+	ActivateHandler *ActivateHandler
 }
 
 func InitHandlers(managers *services.Managers) *Handlers {

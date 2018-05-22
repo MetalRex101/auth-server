@@ -58,3 +58,18 @@ func (osm *OauthSessionManager) FindByClientAndCode (client *models.Client, code
 
 	return &oauthSession, nil
 }
+
+func (osm *OauthSessionManager) FindByToken(accessToken string) (*models.OauthSession, error) {
+	var oauthSession models.OauthSession
+
+	err := osm.DB.Where("access_token", accessToken).First(&oauthSession).Error
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusForbidden, "Access Token не найден")
+	}
+
+	if oauthSession.AccessExpiresAt.Before(time.Now()) {
+		return nil, echo.NewHTTPError(http.StatusRequestTimeout, "Срок действия Access Token истек")
+	}
+
+	return &oauthSession, nil
+}

@@ -80,3 +80,14 @@ func (cm *OauthClientManager) GetForApi(clientID int, clientSecret string, ip st
 
 	return &client, nil
 }
+
+func (cm *OauthClientManager) GetClientFromSession (sess *models.OauthSession) (*models.Client, error) {
+	var client models.Client
+
+	err := cm.DB.Where("client_id = ?", sess.ClientID).First(&client).Error
+	if err != nil {
+		return nil, echo.NewHTTPError(http.StatusForbidden, "Неизвестный клиент")
+	}
+
+	return &client, nil
+}
