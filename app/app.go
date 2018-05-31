@@ -36,6 +36,7 @@ func (app *App) Initialize() {
 
 func (app *App) InitializeServices () {
 	app.DB = db.Init(app.Config)
+	db.MigrateUp(app.DB, app.Config)
 
 	app.Managers = services.InitManagers(app.DB)
 	userMerger := services.NewUserMerger(app.DB, app.Managers.User.(*services.UserManager)).(*services.UserMerger)
