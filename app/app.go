@@ -26,8 +26,8 @@ func NewApp(config *config.Config) *App {
 func (app *App) Initialize() {
 	app.Echo = echo.New()
 
-	app.Echo.Server.SetKeepAlivesEnabled(false)
-	app.Echo.TLSServer.SetKeepAlivesEnabled(false)
+	app.Echo.Server.IdleTimeout = 1
+	app.Echo.TLSServer.IdleTimeout = 1
 
 	app.InitializeServices()
 
