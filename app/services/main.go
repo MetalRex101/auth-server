@@ -40,6 +40,7 @@ type IEmailManager interface {
 	GetEmailToActivate(email string, code string) (*models.Email, error)
     FindOtherUserActivatedEmail(addr string, userID uint) *models.Email
 	ActivateEmail(email *models.Email) error
+
 	EmailNotUsed (addr string) error
 }
 

@@ -21,10 +21,12 @@ func NewRegisteredResource(user *models.User, um *services.UserManager, c echo.C
 
 	email, _ := um.GetDefaultEmail(user.ID, true, c)
 
-	if *user.Gender == "m" {
-		gender = "male"
-	} else if *user.Gender == "f" {
-		gender = "female"
+	if user.Gender != nil {
+		if *user.Gender == "m" {
+			gender = "male"
+		} else if *user.Gender == "f" {
+			gender = "female"
+		}
 	} else {
 		gender = ""
 	}
@@ -44,15 +46,35 @@ func NewRegisteredResource(user *models.User, um *services.UserManager, c echo.C
 		merged = *user.Merged
 	}
 
+	nickname := ""
+	if user.Nickname != nil {
+		nickname = *user.Nickname
+	}
+
+	givenName := ""
+	if user.FirstName != nil {
+		givenName = *user.FirstName
+	}
+
+	lastName := ""
+	if user.LastName != nil {
+		lastName = *user.LastName
+	}
+
+	parentName := ""
+	if user.FatherName != nil {
+		parentName = *user.FatherName
+	}
+
 	return &RegisteredUserResource{
 		Id: strconv.Itoa(int(user.ID)),
 		Created: user.CreatedAt.Format(time.RFC1123Z),
 		Updated: user.UpdatedAt.Format(time.RFC1123Z),
 		Entered: lastVisit,
-		Name: *user.Nickname,
-		GivenName: *user.FirstName,
-		FamilyName: *user.LastName,
-		ParentName: *user.FatherName,
+		Name: nickname,
+		GivenName: givenName,
+		FamilyName: lastName,
+		ParentName: parentName,
 		BirthDate: birthDate,
 		Gender: gender,
 		Merged: merged,

@@ -59,7 +59,7 @@ func (um *UserManager) GetByEmailAndPassword(email string, pass string, hash boo
 func (um *UserManager) GetUserFromSession(sess *models.OauthSession) (*models.User, error) {
 	var user models.User
 
-	err := um.DB.Where("user_id = ?", sess.UserID).First(&user).Error
+	err := um.DB.Where("id = ?", sess.UserID).First(&user).Error
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusNotFound, "Пользователь не найден")
 	}

@@ -62,7 +62,7 @@ func (osm *OauthSessionManager) FindByClientAndCode (client *models.Client, code
 func (osm *OauthSessionManager) FindByToken(accessToken string) (*models.OauthSession, error) {
 	var oauthSession models.OauthSession
 
-	err := osm.DB.Where("access_token", accessToken).First(&oauthSession).Error
+	err := osm.DB.Where("access_token LIKE ?", accessToken).First(&oauthSession).Error
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusForbidden, "Access Token не найден")
 	}

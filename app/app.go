@@ -56,4 +56,5 @@ func (app *App) registerRoutes() {
 	app.Echo.GET("authorize", app.Handlers.Oauth.AuthorizeClientHandler.Handle)
 	app.Echo.GET("access_token", app.Handlers.Oauth.AccessTokenHandler.Handle)
 	app.Echo.GET("activate", app.Handlers.Api.ActivateHandler.Handle)
+	app.Echo.GET("profile", app.Handlers.Api.ProfileHandler.Handle)
 }

@@ -13,11 +13,13 @@ type Handlers struct{
 type Oauth struct {
 	AuthorizeClientHandler *AuthorizeClientHandler
 	AccessTokenHandler *AccessTokenHandler
+	ProfileHandler *ProfileHandler
 }
 
 type Api struct {
 	ActivateHandler *ActivateHandler
 	RegisterHandler *RegisterHandler
+	ProfileHandler *ProfileHandler
 }
 
 type DefaultResponse struct {
@@ -45,6 +47,12 @@ func InitHandlers(managers *services.Managers, merger *services.UserMerger, db *
 				managers.Email,
 				merger,
 				db,
+			),
+			ProfileHandler: NewProfileHandler(
+				managers.OauthSession,
+				managers.OauthClient,
+				managers.User,
+				managers.Email,
 			),
 		},
 	}
