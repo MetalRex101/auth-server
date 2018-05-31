@@ -9,7 +9,6 @@ import (
 	"github.com/MetalRex101/auth-server/app/services"
 	"github.com/MetalRex101/auth-server/app/db"
 	"github.com/MetalRex101/auth-server/app/handlers"
-	"os/user"
 )
 
 type App struct {
