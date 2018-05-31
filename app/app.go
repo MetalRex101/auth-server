@@ -26,6 +26,9 @@ func NewApp(config *config.Config) *App {
 func (app *App) Initialize() {
 	app.Echo = echo.New()
 
+	app.Echo.Server.SetKeepAlivesEnabled(false)
+	app.Echo.TLSServer.SetKeepAlivesEnabled(false)
+
 	app.InitializeServices()
 
 	app.Echo.Use(middleware.Logger())
