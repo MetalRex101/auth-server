@@ -60,3 +60,21 @@ func (em *EmailManager) FindOtherUserActivatedEmail(addr string, userID uint) *m
 
 	return &email
 }
+
+func (em *EmailManager) EmailNotUsed (addr string) error {
+	var email models.Email
+
+	err := em.DB.
+		Where("email = ?", email).
+		Where("IS NOT NULL confirm_date").
+		First(&email).Error
+
+	if err == gorm.ErrRecordNotFound {
+		return echo.NewHTTPError(
+			http.StatusConflict,
+			"Указанный адрес e-mail уже используется другим пользователем",
+		)
+	}
+
+	return nil
+}

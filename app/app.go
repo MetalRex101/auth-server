@@ -9,6 +9,7 @@ import (
 	"github.com/MetalRex101/auth-server/app/services"
 	"github.com/MetalRex101/auth-server/app/db"
 	"github.com/MetalRex101/auth-server/app/handlers"
+	"os/user"
 )
 
 type App struct {
@@ -38,9 +39,12 @@ func (app *App) InitializeServices () {
 	app.DB = db.Init(app.Config)
 
 	app.Managers = services.InitManagers(app.DB)
+	userMerger := services.NewUserMerger(app.DB, app.Managers.User.(*services.UserManager)).(*services.UserMerger)
 
 	app.Handlers = handlers.InitHandlers(
 		app.Managers,
+		userMerger,
+		app.DB,
 	)
 }
 
@@ -51,4 +55,5 @@ func (app *App) Run(port int) {
 func (app *App) registerRoutes() {
 	app.Echo.GET("authorize", app.Handlers.Oauth.AuthorizeClientHandler.Handle)
 	app.Echo.GET("access_token", app.Handlers.Oauth.AccessTokenHandler.Handle)
+	app.Echo.GET("activate", app.Handlers.Api.ActivateHandler.Handle)
 }

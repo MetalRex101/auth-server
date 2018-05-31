@@ -93,7 +93,7 @@ func (um *UserManager) GetDefaultEmail (userID uint, update bool, c echo.Context
 		Where("user_id = ?", userID).
 		Order("is_default desc").
 		Order("status desc").
-		Order("create_at").
+		Order("created_at").
 		First(&email).Error
 
 	if err != nil {
@@ -104,13 +104,13 @@ func (um *UserManager) GetDefaultEmail (userID uint, update bool, c echo.Context
 	um.DB.Save(&email)
 
 	if update {
-		um.updateDefaultEmail(&email, userID, c)
+		um.updateDefaultEmail(&email, userID, c.Logger())
 	}
 
 	return &email, nil
 }
 
-func (um *UserManager) updateDefaultEmail (email *models.Email, userID uint, c echo.Context) {
+func (um *UserManager) updateDefaultEmail (email *models.Email, userID uint, l echo.Logger) {
 	err := um.DB.
 		Table("emails").
 		Where("user_id = ?", userID).
@@ -118,6 +118,42 @@ func (um *UserManager) updateDefaultEmail (email *models.Email, userID uint, c e
 		Update("is_default", false).Error
 
 	if err != nil {
-		c.Logger().Error(err)
+		l.Error(err)
+	}
+}
+
+func (um *UserManager) GetDefaultPhone (userID uint, update bool, c echo.Context) (*models.Phone, error) {
+	var phone models.Phone
+
+	err := um.DB.
+		Where("user_id = ?", userID).
+		Order("is_default desc").
+		Order("status desc").
+		Order("created_at").
+		First(&phone).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	phone.IsDefault = true
+	um.DB.Save(&phone)
+
+	if update {
+		um.updateDefaultPhone(&phone, userID, c.Logger())
+	}
+
+	return &phone, nil
+}
+
+func (um *UserManager) updateDefaultPhone (phone *models.Phone, userID uint, l echo.Logger) {
+	err := um.DB.
+		Table("phones").
+		Where("user_id = ?", userID).
+		Where("id != ?", phone.ID).
+		Update("is_default", false).Error
+
+	if err != nil {
+		l.Error(err)
 	}
 }

@@ -4,6 +4,7 @@ var Client *ClientValidator
 var Request *RequestValidator
 var Url *UrlValidator
 var Email *EmailValidator
+var Password *PasswordValidator
 
 func init() {
 	base := GetValidator()
@@ -12,4 +13,5 @@ func init() {
 	Request = &RequestValidator{Base: base}
 	Url = &UrlValidator{Base: base}
 	Email = &EmailValidator{Base: base}
+	Password = &PasswordValidator{Base: base}
 }

@@ -25,8 +25,10 @@ type User struct {
 
 	Passwords []Password
 	Emails    []Email
+	Phones    []Phone
 	Editor    *User
 	Creator   *User
+	Roles     []Role `gorm:"many2many:user_role;"`
 }
 
 func (User) TableName() string {

@@ -5,6 +5,8 @@ import (
 	"github.com/MetalRex101/auth-server/app/models"
 	"time"
 	"github.com/MetalRex101/auth-server/app/services"
+	"github.com/Pallinder/go-randomdata"
+	"strconv"
 )
 
 var ClientFact = factory.NewFactory(
@@ -12,13 +14,13 @@ var ClientFact = factory.NewFactory(
 ).SeqInt("ID", func(n int) (interface{}, error) {
 	return uint(n), nil
 }).Attr("ClientID", func(args factory.Args) (interface{}, error) {
-	clientID := "732173982718"
+	clientID := strconv.Itoa(randomdata.Number(1000000000, 9999999999))
 	return &clientID, nil
 }).Attr("ClientSecret", func(args factory.Args) (interface{}, error) {
-	clientSecret := "some_random_secret"
+	clientSecret := randomdata.RandStringRunes(16)
 	return &clientSecret, nil
 }).Attr("Name", func(args factory.Args) (interface{}, error) {
-	name := "Some Client Name"
+	name := randomdata.SillyName()
 	return &name, nil
 }).Attr("Status", func(args factory.Args) (interface{}, error) {
 	return true, nil
@@ -55,10 +57,10 @@ var UserFact = factory.NewFactory(
 ).SeqInt("ID", func(n int) (interface{}, error) {
 	return uint(n), nil
 }).Attr("FirstName", func(args factory.Args) (interface{}, error) {
-	firstName := "Some First Name"
+	firstName := randomdata.FirstName(randomdata.Male)
 	return &firstName, nil
 }).Attr("LastName", func(args factory.Args) (interface{}, error) {
-	firstName := "Some Last Name"
+	firstName := randomdata.LastName()
 	return &firstName, nil
 })
 
@@ -79,8 +81,24 @@ var EmailFact = factory.NewFactory(
 ).SeqInt("ID", func(n int) (interface{}, error) {
 	return uint(n), nil
 }).Attr("Email", func(args factory.Args) (interface{}, error) {
-	email := "some_email@gmai.com"
+	email := randomdata.Email()
 	return &email, nil
+}).Attr("IsDefault", func(args factory.Args) (interface{}, error) {
+	return true, nil
+}).Attr("Status", func(args factory.Args) (interface{}, error) {
+	return true, nil
+}).Attr("ConfirmDate", func(args factory.Args) (interface{}, error) {
+	time := time.Now()
+	return &time, nil
+})
+
+var PhoneFact = factory.NewFactory(
+	&models.Phone{},
+).SeqInt("ID", func(n int) (interface{}, error) {
+	return uint(n), nil
+}).Attr("Phone", func(args factory.Args) (interface{}, error) {
+	phone := randomdata.Number(1000000000, 9999999999)
+	return &phone, nil
 }).Attr("IsDefault", func(args factory.Args) (interface{}, error) {
 	return true, nil
 }).Attr("Status", func(args factory.Args) (interface{}, error) {

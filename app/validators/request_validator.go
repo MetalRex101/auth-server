@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"net/http"
 	"fmt"
+	"time"
 )
 
 const CodeTypeActivation = "activation"
@@ -136,4 +137,63 @@ func (v RequestValidator) GetCode(codeType string, c echo.Context) (string, erro
 	}
 
 	return code, nil
+}
+
+func (v RequestValidator) GetUrl(c echo.Context) (string, error) {
+	url := c.QueryParam("url")
+
+	if url == "" {
+		return "", echo.NewHTTPError(http.StatusBadRequest, "Не указан url")
+	}
+
+	return url, nil
+}
+
+func (v RequestValidator) GetGender (validate bool, c echo.Context) (string, error) {
+	gender := c.QueryParam("gender")
+
+	if gender == "" && validate {
+		return "", echo.NewHTTPError(http.StatusNotFound, "Не указан gender")
+	}
+
+	if validate {
+		genders := []string{"male", "female"}
+		has := false
+
+		for _, gend := range genders {
+			if gend == gender {
+				has = true
+			}
+		}
+
+		if !has {
+			return "", echo.NewHTTPError(
+				http.StatusNotAcceptable,
+				"Аргумент gender должен иметь значение male или female",
+			)
+		}
+	}
+
+	return gender, nil
+}
+
+func (v RequestValidator) GetBirthDate (validate bool, c echo.Context) (*time.Time, error) {
+	birthDate := c.QueryParam("birthDate")
+
+	if birthDate == "" {
+		if validate {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "Не указан birthDate")
+		} else {
+			return nil, nil
+		}
+	}
+
+	timestamp, err := strconv.ParseInt(birthDate, 10, 64)
+	if err != nil && validate {
+		return nil, echo.NewHTTPError(http.StatusUnprocessableEntity, "Неверный формат birthdate")
+	}
+
+	date := time.Unix(timestamp, 0)
+
+	return &date, nil
 }

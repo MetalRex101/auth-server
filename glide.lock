@@ -1,5 +1,5 @@
-hash: a286215207ac84e55c5f5928c171bc3436ff4912c6804f4c95bd393a7e42232c
-updated: 2018-05-05T16:20:31.866922019+03:00
+hash: 0616129a31307adef870b2c972c333962c4d875a1e3aea18bcf7aa5c31fccd36
+updated: 2018-05-27T19:49:01.201698+03:00
 imports:
 - name: github.com/bluele/factory-go
   version: 14d56da9cb7cb33b02fe42a9566a03e51c8b3bef
@@ -58,6 +58,8 @@ imports:
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
 - name: github.com/mitchellh/mapstructure
   version: 06020f85339e21b2478f756a78e295255ffa4d6a
+- name: github.com/Pallinder/go-randomdata
+  version: b073033ef5a7c42a3f188393575a0850919777a6
 - name: github.com/pelletier/go-toml
   version: 4e9e0ee19b60b13eb79915933f44d8ed5f268bdd
 - name: github.com/pkg/errors

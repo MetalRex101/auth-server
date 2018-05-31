@@ -13,7 +13,6 @@ type Managers struct {
 	OauthSession IOauthSessionManager
 	User IUserManager
 	Email IEmailManager
-	Merger IUserMerger
 }
 
 type IOauthClientManager interface {
@@ -34,12 +33,14 @@ type IUserManager interface {
 	GetUserFromSession(sess *models.OauthSession) (*models.User, error)
     UserNotHaveActivatedEmail (userID uint, emailAddr string) (bool, error)
 	GetDefaultEmail (userID uint, update bool, c echo.Context) (*models.Email, error)
+	GetDefaultPhone (userID uint, update bool, c echo.Context) (*models.Phone, error)
 }
 
 type IEmailManager interface {
 	GetEmailToActivate(email string, code string) (*models.Email, error)
     FindOtherUserActivatedEmail(addr string, userID uint) *models.Email
 	ActivateEmail(email *models.Email) error
+	EmailNotUsed (addr string) error
 }
 
 type IUserMerger interface {
@@ -52,7 +53,6 @@ func InitManagers (db *gorm.DB) *Managers {
 		OauthSession: NewOauthSessionManager(db),
 		User: NewUserManager(db),
 		Email: NewEmailManager(db),
-		Merger: NewUserMerger(db),
 	}
 }
 

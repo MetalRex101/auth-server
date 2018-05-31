@@ -5,26 +5,30 @@ import (
 	"github.com/labstack/echo"
 	"github.com/MetalRex101/auth-server/app/validators"
 	"github.com/MetalRex101/auth-server/app/models"
+	"net/http"
 )
 
 type ActivateHandler struct{
-	osm services.IOauthSessionManager
-	ocm services.IOauthClientManager
-	um services.IUserManager
-	em services.IEmailManager
+	osm  services.IOauthSessionManager
+	ocm  services.IOauthClientManager
+	um   services.IUserManager
+	em   services.IEmailManager
+	uMer services.IUserMerger
 }
 
 func NewActivateHandler(
-	osm *services.IOauthSessionManager,
-	ocm *services.IOauthClientManager,
-	um *services.IUserManager,
-	em *services.IEmailManager,
+	osm services.IOauthSessionManager,
+	ocm services.IOauthClientManager,
+	um services.IUserManager,
+	em services.IEmailManager,
+	uMer services.IUserMerger,
 ) *ActivateHandler {
-	return &ActivateHandler{osm, ocm, um, em}
+	return &ActivateHandler{osm, ocm, um, em, uMer}
 }
 
-func (act *ActivateHandler) handle (c echo.Context) error {
+func (act *ActivateHandler) Handle (c echo.Context) error {
 	var client *models.Client
+	var user *models.User
 
 	if err := validators.Request.OauthTID(c); err != nil {
 		return err
@@ -46,7 +50,7 @@ func (act *ActivateHandler) handle (c echo.Context) error {
 			return err
 		}
 
-		user, err := act.um.GetUserFromSession(oauthSess)
+		user, err = act.um.GetUserFromSession(oauthSess)
 		if err != nil {
 			return err
 		}
@@ -82,24 +86,28 @@ func (act *ActivateHandler) handle (c echo.Context) error {
 		return err
 	}
 
-	email, err := act.em.GetEmailToActivate(emailAddr, code)
+	emailToActivate, err := act.em.GetEmailToActivate(emailAddr, code)
 	if err != nil {
 		return err
 	}
 
-	if _, err := act.um.UserNotHaveActivatedEmail(*email.UserID, *email.Email); err != nil {
+	if _, err := act.um.UserNotHaveActivatedEmail(*emailToActivate.UserID, *emailToActivate.Email); err != nil {
 		return err
 	}
 
-	if err := act.em.ActivateEmail(email); err != nil {
+	if err := act.em.ActivateEmail(emailToActivate); err != nil {
 		return err
 	}
 
-	otherUserActivatedEmail := act.em.FindOtherUserActivatedEmail(*email.Email, *email.UserID)
+	otherUserActivatedEmail := act.em.FindOtherUserActivatedEmail(*emailToActivate.Email, *emailToActivate.UserID)
 
 	if otherUserActivatedEmail != nil {
-
+		act.uMer.MergerUsers(emailToActivate.User, otherUserActivatedEmail.User, c)
 	}
 
-	return nil
+	if user != nil {
+		act.uMer.MergerUsers(user, emailToActivate.User, c)
+	}
+
+	return c.JSON(http.StatusOK, DefaultResponse{Status:1})
 }
